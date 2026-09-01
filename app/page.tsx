@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { CrtBackground } from '@designcodeio/threeui/components/CrtBackground';
 
 type Sample = { time: string; altitude: number; shadow: number; temperature: number };
 type GraphKey = 'altitude' | 'shadow' | 'temperature';
@@ -152,6 +153,9 @@ export default function Home() {
           <button className="start-button" type="button" onClick={() => { setPhase(1); document.querySelector('#mission')?.scrollIntoView({ behavior: 'smooth' }); }}>관측 임무 시작 <span>→</span></button>
         </div>
         <div className="mission-card">
+          <div className="crt-stage" aria-hidden="true">
+            <CrtBackground variant="terminal" speed={0.65} typeSpeed={0.6} motion={0.45} hue={18} saturation={0.75} brightness={0.76} opacity={1} />
+          </div>
           <span>MISSION 01</span><b>남중고도 관측 기록 복구</b>
           <div className="orbit"><div className="orbit-sun">☀</div><div className="observatory">⌂</div></div>
           <dl><div><dt>진행률</dt><dd>{progress}%</dd></div><div><dt>현재 배지</dt><dd>{badge}</dd></div></dl>
@@ -243,12 +247,35 @@ export default function Home() {
         )}
 
         {phase === 4 && (
-          <section className="phase-panel finish-section">
-            <div className="completion-seal">☀<span>MISSION<br />COMPLETE</span></div>
-            <span className="final-kicker">남쪽 하늘 관측소 공식 보고서</span><h2>남중고도의 비밀을 찾았어요!</h2>
-            <p>태양은 <b>오후 12시 30분 무렵</b> 정남쪽에서 가장 높이 떠요.<br />태양 고도가 높아질수록 그림자는 <b>짧아지고</b>, 기온은 대체로 <b>높아집니다.</b></p>
-            <div className="result-grid"><div><span>최종 점수</span><b>{score} P</b></div><div><span>완료 관측</span><b>{recorded.length} / 7</b></div><div><span>획득 배지</span><b>{badge}</b></div></div>
-            <div className="final-actions"><button type="button" onClick={() => window.print()}>결과 인쇄하기</button><button type="button" className="outline" onClick={() => { setPhase(1); document.querySelector('#mission')?.scrollIntoView({ behavior: 'smooth' }); }}>관측 다시 보기</button></div>
+          <section className="phase-panel finish-stage">
+            <div className="paper-halo" aria-hidden="true" />
+            <article
+              className="finish-section paper-surface"
+              onPointerMove={(event) => {
+                const rect = event.currentTarget.getBoundingClientRect();
+                const x = (event.clientX - rect.left) / rect.width - 0.5;
+                const y = (event.clientY - rect.top) / rect.height - 0.5;
+                event.currentTarget.style.setProperty('--paper-rx', `${-y * 8}deg`);
+                event.currentTarget.style.setProperty('--paper-ry', `${x * 10}deg`);
+                event.currentTarget.style.setProperty('--paper-light-x', `${(x + 0.5) * 100}%`);
+                event.currentTarget.style.setProperty('--paper-light-y', `${(y + 0.5) * 100}%`);
+              }}
+              onPointerLeave={(event) => {
+                event.currentTarget.style.setProperty('--paper-rx', '0deg');
+                event.currentTarget.style.setProperty('--paper-ry', '0deg');
+                event.currentTarget.style.setProperty('--paper-light-x', '50%');
+                event.currentTarget.style.setProperty('--paper-light-y', '20%');
+              }}
+            >
+              <div className="paper-grain" aria-hidden="true" />
+              <div className="paper-fold paper-fold-left" aria-hidden="true" />
+              <div className="paper-fold paper-fold-right" aria-hidden="true" />
+              <div className="completion-seal">☀<span>MISSION<br />COMPLETE</span></div>
+              <span className="final-kicker">남쪽 하늘 관측소 공식 보고서</span><h2>남중고도의 비밀을 찾았어요!</h2>
+              <p>태양은 <b>오후 12시 30분 무렵</b> 정남쪽에서 가장 높이 떠요.<br />태양 고도가 높아질수록 그림자는 <b>짧아지고</b>, 기온은 대체로 <b>높아집니다.</b></p>
+              <div className="result-grid"><div><span>최종 점수</span><b>{score} P</b></div><div><span>완료 관측</span><b>{recorded.length} / 7</b></div><div><span>획득 배지</span><b>{badge}</b></div></div>
+              <div className="final-actions"><button type="button" onClick={() => window.print()}>결과 인쇄하기</button><button type="button" className="outline" onClick={() => { setPhase(1); document.querySelector('#mission')?.scrollIntoView({ behavior: 'smooth' }); }}>관측 다시 보기</button></div>
+            </article>
           </section>
         )}
       </section>
