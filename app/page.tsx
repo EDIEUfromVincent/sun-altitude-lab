@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent, type PointerEvent as ReactPointerEvent } from 'react';
 import CrtTerminal from './CrtTerminal';
 
 type Sample = { time: string; altitude: number; shadow: number; temperature: number };
@@ -92,6 +92,7 @@ export default function Home() {
   const [setup, setSetup] = useState([false, false, false]);
   const [solved, setSolved] = useState<string[]>([]);
   const [teacherOpen, setTeacherOpen] = useState(false);
+  const [isDraggingTime, setIsDraggingTime] = useState(false);
   const sample = samples[sampleIndex];
   const progress = Math.round(((setup.filter(Boolean).length + recorded.length + solved.length) / 13) * 100);
   const badge = recorded.length === 7 ? '남중고도 마스터' : recorded.length >= 4 ? '그림자 탐정' : recorded.length >= 1 ? '첫 관측 성공' : '도전 중';
@@ -102,6 +103,42 @@ export default function Home() {
     setShadowGuess('');
     setFeedback(recorded.includes(index) ? '이미 관측한 시각이에요. 다시 실험해 보아도 좋아요!' : '각도기와 자를 자세히 살펴보고 측정값을 입력하세요.');
     setFeedbackTone('neutral');
+  }
+
+  function chooseTimeFromPosition(clientX: number, surface: HTMLDivElement) {
+    const rect = surface.getBoundingClientRect();
+    const relativeX = (clientX - rect.left) / rect.width;
+    const nextIndex = Math.max(0, Math.min(6, Math.round(((relativeX - 0.12) / 0.75) * 6)));
+    if (nextIndex !== sampleIndex) chooseSample(nextIndex);
+  }
+
+  function startTimeDrag(event: ReactPointerEvent<HTMLDivElement>) {
+    event.currentTarget.setPointerCapture(event.pointerId);
+    setIsDraggingTime(true);
+    chooseTimeFromPosition(event.clientX, event.currentTarget);
+  }
+
+  function moveTimeDrag(event: ReactPointerEvent<HTMLDivElement>) {
+    if (!isDraggingTime) return;
+    chooseTimeFromPosition(event.clientX, event.currentTarget);
+  }
+
+  function endTimeDrag(event: ReactPointerEvent<HTMLDivElement>) {
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
+    setIsDraggingTime(false);
+  }
+
+  function moveTimeWithKeyboard(event: ReactKeyboardEvent<HTMLDivElement>) {
+    let next = sampleIndex;
+    if (event.key === 'ArrowLeft' || event.key === 'ArrowDown') next -= 1;
+    if (event.key === 'ArrowRight' || event.key === 'ArrowUp') next += 1;
+    if (event.key === 'Home') next = 0;
+    if (event.key === 'End') next = 6;
+    next = Math.max(0, Math.min(6, next));
+    if (next !== sampleIndex) {
+      event.preventDefault();
+      chooseSample(next);
+    }
   }
 
   function toggleSetup(index: number) {
@@ -197,9 +234,24 @@ export default function Home() {
             <div className="section-heading"><div><span className="section-number">02</span><p>원하는 시각부터 선택 가능</p></div><h2>태양 고도와 그림자 측정</h2></div>
             <div className="time-quests" aria-label="관측 시각 선택">{samples.map((item, i) => <button type="button" key={item.time} onClick={() => chooseSample(i)} className={`${i === sampleIndex ? 'selected' : ''} ${recorded.includes(i) ? 'done' : ''}`}><span>{recorded.includes(i) ? '✓' : String(i + 1).padStart(2, '0')}</span><b>{item.time}</b></button>)}</div>
             <div className="lab-card">
-              <div className="sky-panel">
+              <div
+                className={`sky-panel time-drag-surface ${isDraggingTime ? 'dragging' : ''}`}
+                role="slider"
+                tabIndex={0}
+                aria-label="관측 시각"
+                aria-valuemin={0}
+                aria-valuemax={6}
+                aria-valuenow={sampleIndex}
+                aria-valuetext={sample.time}
+                onPointerDown={startTimeDrag}
+                onPointerMove={moveTimeDrag}
+                onPointerUp={endTimeDrag}
+                onPointerCancel={endTimeDrag}
+                onKeyDown={moveTimeWithKeyboard}
+              >
                 <div className="sky-caption"><b>{sample.time}</b> 남쪽 하늘 · 막대기 높이 10 cm</div>
-                <div className="sun" style={{ left: `${12 + sampleIndex * 12.5}%`, top: `${62 - sample.altitude * .78}%` }}><span /></div>
+                <div className="drag-hint"><span>↔</span>{isDraggingTime ? '시간 이동 중' : '태양을 좌우로 드래그해 시간 바꾸기'}</div>
+                <div className={`sun ${isDraggingTime ? 'grabbed' : ''}`} style={{ left: `${12 + sampleIndex * 12.5}%`, top: `${62 - sample.altitude * .78}%` }}><span /><i aria-hidden="true">↔</i></div>
                 <div className="sun-path" aria-hidden="true" />
                 <div className="ground">
                   <div className="stick" />
