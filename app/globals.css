@@ -26,6 +26,7 @@ button { cursor:pointer; }
 .mission-card { border-radius:18px; background:#06100c; color:#fff; min-height:365px; padding:34px; box-shadow:0 25px 60px rgba(28,67,51,.25),inset 0 0 0 1px rgba(124,255,181,.1); position:relative; overflow:hidden; isolation:isolate; }
 .mission-card:after { content:''; position:absolute; inset:0; z-index:1; background:linear-gradient(180deg,rgba(2,13,8,.08),rgba(2,13,8,.74)),repeating-linear-gradient(0deg,rgba(141,255,183,.025) 0 1px,transparent 1px 4px); pointer-events:none; }
 .crt-stage { position:absolute; inset:0; z-index:0; opacity:.72; filter:saturate(.72) contrast(1.08); }
+.crt-terminal-canvas { display:block; width:100%; height:100%; }
 .mission-card>span,.mission-card>b,.mission-card>.orbit,.mission-card>dl { position:relative; z-index:2; }
 .mission-card>span { color:#9bffc3; text-shadow:0 0 12px rgba(95,255,159,.35); font-family:'SFMono-Regular',Consolas,monospace; font-size:11px; letter-spacing:.15em; font-weight:900; }
 .mission-card>b { display:block; margin-top:8px; font-family:Georgia,'Noto Serif KR',serif; font-size:24px; text-shadow:0 2px 18px rgba(0,0,0,.8); }

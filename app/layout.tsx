@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import '@designcodeio/threeui/style.css';
 import './globals.css';
 
 export const metadata: Metadata = {

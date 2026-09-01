@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { CrtBackground } from '@designcodeio/threeui/components/CrtBackground';
+import CrtTerminal from './CrtTerminal';
 
 type Sample = { time: string; altitude: number; shadow: number; temperature: number };
 type GraphKey = 'altitude' | 'shadow' | 'temperature';
@@ -154,7 +154,7 @@ export default function Home() {
         </div>
         <div className="mission-card">
           <div className="crt-stage" aria-hidden="true">
-            <CrtBackground variant="terminal" speed={0.65} typeSpeed={0.6} motion={0.45} hue={18} saturation={0.75} brightness={0.76} opacity={1} />
+            <CrtTerminal />
           </div>
           <span>MISSION 01</span><b>남중고도 관측 기록 복구</b>
           <div className="orbit"><div className="orbit-sun">☀</div><div className="observatory">⌂</div></div>
