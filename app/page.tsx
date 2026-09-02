@@ -24,6 +24,8 @@ const graphMeta: Record<GraphKey, { label: string; unit: string; color: string; 
   temperature: { label: '기온', unit: '℃', color: '#3568ad', min: 19, max: 29 },
 };
 
+const measurementTolerance = { altitude: 2, shadow: 1.5 };
+
 function GraphCard({ metric, measurements }: { metric: GraphKey; measurements: MeasurementMap }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const meta = graphMeta[metric];
@@ -236,14 +238,15 @@ export default function Home() {
     if (!shadowGuess || Number.isNaN(shadowNumber)) {
       setFeedback('그림자 길이도 입력해야 관측을 완료할 수 있어요.'); setFeedbackTone('try'); return;
     }
-    if (angleDiff <= 1 && shadowDiff <= .6) {
+    if (angleDiff <= measurementTolerance.altitude && shadowDiff <= measurementTolerance.shadow) {
       const first = !measurements[sampleIndex];
+      const resultLabel = angleDiff <= .5 && shadowDiff <= .2 ? '정확해요!' : '좋은 근삿값이에요!';
       setMeasurements((items) => ({
         ...items,
         [sampleIndex]: { altitude: angleGuess, shadow: shadowNumber, temperature: sample.temperature },
       }));
       if (first) setScore((value) => value + 120);
-      setFeedback(first ? `정확해요! 입력한 ${angleGuess}°, ${shadowNumber} cm와 기온 ${sample.temperature}℃가 기록표와 그래프로 전송됐어요. +120점` : `재측정값 ${angleGuess}°, ${shadowNumber} cm로 기록을 갱신했어요.`);
+      setFeedback(first ? `${resultLabel} 입력한 ${angleGuess}°, ${shadowNumber} cm와 기온 ${sample.temperature}℃가 기록표와 그래프로 전송됐어요. +120점` : `${resultLabel} 재측정값 ${angleGuess}°, ${shadowNumber} cm로 기록을 갱신했어요.`);
       setFeedbackTone('good');
     } else {
       const hint = angleDiff > 1 && shadowDiff > .6 ? '각도기의 중심과 그림자 끝을 모두 다시 확인해 보세요.' : angleDiff > 1 ? '막대기 끝과 각도기 중심을 이은 선을 다시 살펴보세요.' : '자의 0 cm가 막대기 밑에 놓였는지 확인해 보세요.';
@@ -345,6 +348,7 @@ export default function Home() {
                 <label htmlFor="angle-slider">① 각도기 눈금 맞추기 <b>{angleGuess}°</b></label>
                 <input id="angle-slider" type="range" min="25" max="60" step="0.5" value={angleGuess} onChange={(event) => setAngleGuess(Number(event.target.value))} />
                 <div className="range-scale"><span>25°</span><span>60°</span></div>
+                <p className="tolerance-note">눈금 읽기 오차 허용: 각도 ±2° · 그림자 ±1.5 cm</p>
                 <label htmlFor="shadow-input">② 그림자 길이 읽기</label>
                 <div className="input-unit"><input id="shadow-input" inputMode="decimal" value={shadowGuess} onChange={(event) => setShadowGuess(event.target.value)} placeholder="예: 12.5" /><span>cm</span></div>
                 <div className={`feedback ${feedbackTone}`} role="status"><span>{feedbackTone === 'good' ? '✓' : feedbackTone === 'try' ? '↻' : 'i'}</span><p>{feedback}</p></div>
