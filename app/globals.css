@@ -89,14 +89,27 @@ button { cursor:pointer; }
 .sun.grabbed { transition:none; transform:translate(-50%,-50%) scale(1.12); box-shadow:0 0 0 17px rgba(255,192,44,.17),0 0 58px rgba(255,171,0,.82); }
 .sun.grabbed i { background:#0e4933; opacity:1; }
 .sun-path { position:absolute; width:78%; height:52%; border-radius:50% 50% 0 0; border-top:1px dashed rgba(82,108,103,.5); left:11%; top:23%; }
-.ground { position:absolute; bottom:20%; left:50%; width:1px; height:116px; }
-.stick { position:absolute; bottom:0; width:12px; height:112px; background:#f2d59a; border:2px solid #9a763f; border-radius:5px 5px 2px 2px; transform:translateX(-50%); box-shadow:4px 0 0 rgba(255,255,255,.26) inset; z-index:3; }
-.shadow { position:absolute; left:2px; bottom:1px; height:11px; transform-origin:left center; background:linear-gradient(90deg,rgba(36,49,39,.62),rgba(36,49,39,.05)); border-radius:50%; transition:all .45s ease; z-index:2; }
-.protractor { position:absolute; bottom:-1px; left:-2px; width:155px; height:78px; border-radius:0 155px 0 0; border:1px solid rgba(255,255,255,.85); border-left:0; border-bottom:0; background:repeating-radial-gradient(circle at 0 100%,transparent 0 14px,rgba(255,255,255,.55) 15px 16px); z-index:1; }
-.protractor>span { position:absolute; right:18px; top:42px; color:#fff; font-size:10px; }
-.angle-ray { position:absolute; left:0; bottom:0; width:150px; height:2px; background:#d7543b; transform-origin:left center; transition:transform .45s ease; }
-.ruler { position:absolute; top:119px; left:-78px; height:28px; background:rgba(215,238,242,.8); border:1px solid rgba(49,91,101,.4); z-index:4; }
-.ruler i { position:absolute; top:0; width:1px; height:10px; border-left:1px solid #456873; font-size:7px; color:#38515a; font-style:normal; }
+.measurement-instrument { position:absolute; z-index:3; left:0; bottom:1.5%; width:100%; height:58%; overflow:visible; pointer-events:none; }
+.instrument-ground-line { stroke:rgba(72,101,64,.52); stroke-width:2; }
+.instrument-shadow { stroke:url(#shadowFade); stroke-width:13; stroke-linecap:round; }
+.shadow-tip { fill:#24372c; stroke:#fff; stroke-width:2; }
+.instrument-ruler rect { fill:rgba(218,241,245,.94); stroke:#426c75; stroke-width:1.2; }
+.instrument-ruler line { stroke:#365d67; stroke-width:.8; }
+.instrument-ruler text { fill:#294b54; font-size:10px; text-anchor:middle; font-weight:800; }
+.instrument-ruler .ruler-unit { text-anchor:start; font-size:9px; }
+.instrument-stick rect { fill:#f3d69a; stroke:#8f6933; stroke-width:3; }
+.instrument-stick line { stroke:rgba(255,255,255,.7); stroke-width:3; }
+.instrument-stick text { fill:#4a593f; font-size:11px; font-weight:900; }
+.instrument-protractor path { fill:rgba(255,255,255,.32); stroke:rgba(255,255,255,.95); stroke-width:1.5; }
+.instrument-protractor line { stroke:rgba(50,87,76,.7); stroke-width:1; }
+.instrument-protractor text { fill:#31594d; font-size:9px; text-anchor:middle; font-weight:900; }
+.instrument-protractor circle { fill:#173f30; stroke:#fff; stroke-width:2; }
+.instrument-protractor .center-label { fill:#173f30; font-size:10px; paint-order:stroke; stroke:rgba(255,255,255,.88); stroke-width:4px; stroke-linejoin:round; }
+.true-ray { stroke:#df5238; stroke-width:4; stroke-linecap:round; }
+.guess-ray { stroke:#146b4e; stroke-width:3; stroke-dasharray:7 5; stroke-linecap:round; }
+.zero-marker { fill:none; stroke:#146b4e; stroke-width:3; }
+.zero-label { fill:#173f30; font-size:10px; font-weight:900; text-anchor:middle; paint-order:stroke; stroke:rgba(255,255,255,.88); stroke-width:4px; stroke-linejoin:round; }
+.instrument-legend text { fill:#354c40; font-size:10px; font-weight:800; }
 .measure-panel { padding:40px 36px; display:flex; flex-direction:column; background:#fbfbf8; }
 .mini-label { color:var(--green); font-weight:900; font-size:11px; letter-spacing:.08em; }
 .measure-panel>strong { margin:6px 0 28px; font-family:Georgia,serif; font-size:44px; }

@@ -5,6 +5,8 @@ import CrtTerminal from './CrtTerminal';
 
 type Sample = { time: string; altitude: number; shadow: number; temperature: number };
 type GraphKey = 'altitude' | 'shadow' | 'temperature';
+type RecordedMeasurement = { altitude: number; shadow: number; temperature: number };
+type MeasurementMap = Record<number, RecordedMeasurement>;
 
 const samples: Sample[] = [
   { time: '9:30', altitude: 34.5, shadow: 14.5, temperature: 21.1 },
@@ -22,7 +24,7 @@ const graphMeta: Record<GraphKey, { label: string; unit: string; color: string; 
   temperature: { label: '기온', unit: '℃', color: '#3568ad', min: 19, max: 29 },
 };
 
-function GraphCard({ metric, recorded }: { metric: GraphKey; recorded: number[] }) {
+function GraphCard({ metric, measurements }: { metric: GraphKey; measurements: MeasurementMap }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const meta = graphMeta[metric];
 
@@ -55,8 +57,8 @@ function GraphCard({ metric, recorded }: { metric: GraphKey; recorded: number[] 
     });
     const points = samples.map((sample, i) => ({
       x: pad.l + (plotW / 6) * i,
-      y: pad.t + plotH - (((sample[metric] as number) - meta.min) / (meta.max - meta.min)) * plotH,
-      shown: recorded.includes(i),
+      y: pad.t + plotH - (((measurements[i]?.[metric] ?? sample[metric]) - meta.min) / (meta.max - meta.min)) * plotH,
+      shown: Boolean(measurements[i]),
     }));
     ctx.strokeStyle = meta.color; ctx.lineWidth = 3; ctx.lineJoin = 'round';
     ctx.beginPath();
@@ -70,7 +72,7 @@ function GraphCard({ metric, recorded }: { metric: GraphKey; recorded: number[] 
       if (!point.shown) return;
       ctx.fillStyle = meta.color; ctx.beginPath(); ctx.arc(point.x, point.y, 4.5, 0, Math.PI * 2); ctx.fill();
     });
-  }, [metric, recorded, meta]);
+  }, [metric, measurements, meta]);
 
   return (
     <article className="graph-card">
@@ -80,10 +82,88 @@ function GraphCard({ metric, recorded }: { metric: GraphKey; recorded: number[] 
   );
 }
 
+function MeasurementInstrument({ sample, angleGuess }: { sample: Sample; angleGuess: number }) {
+  const baseX = 500;
+  const groundY = 240;
+  const unit = 18;
+  const poleHeight = 10 * unit;
+  const shadowTipX = baseX - sample.shadow * unit;
+  const radius = 118;
+  const guessRadians = angleGuess * Math.PI / 180;
+  const ticks = Array.from({ length: 19 }, (_, i) => i * 5);
+  const rulerTicks = Array.from({ length: 161 }, (_, i) => i / 10);
+
+  return (
+    <svg className="measurement-instrument" viewBox="0 0 720 300" role="img" aria-label={`막대기 높이 10 cm, 그림자 끝에 중심을 둔 각도기와 막대기 밑 0점에 맞춘 자`}>
+      <defs>
+        <linearGradient id="shadowFade" x1="1" x2="0"><stop stopColor="#26342b" stopOpacity=".62" /><stop offset="1" stopColor="#26342b" stopOpacity=".12" /></linearGradient>
+      </defs>
+
+      <line className="instrument-ground-line" x1="70" y1={groundY} x2="660" y2={groundY} />
+
+      <g className="instrument-protractor">
+        <path d={`M ${shadowTipX} ${groundY} L ${shadowTipX + radius} ${groundY} A ${radius} ${radius} 0 0 0 ${shadowTipX} ${groundY - radius} Z`} />
+        {ticks.map((angle) => {
+          const rad = angle * Math.PI / 180;
+          const longTick = angle % 10 === 0;
+          const outerX = shadowTipX + Math.cos(rad) * radius;
+          const outerY = groundY - Math.sin(rad) * radius;
+          const innerRadius = radius - (longTick ? 12 : 7);
+          const innerX = shadowTipX + Math.cos(rad) * innerRadius;
+          const innerY = groundY - Math.sin(rad) * innerRadius;
+          return <line key={angle} x1={innerX} y1={innerY} x2={outerX} y2={outerY} />;
+        })}
+        {[0, 30, 60, 90].map((angle) => {
+          const rad = angle * Math.PI / 180;
+          return <text key={angle} x={shadowTipX + Math.cos(rad) * (radius - 24)} y={groundY - Math.sin(rad) * (radius - 24) + 4}>{angle}°</text>;
+        })}
+        <circle cx={shadowTipX} cy={groundY} r="5" />
+        <text className="center-label" x={shadowTipX} y={groundY + 54}>각도기 중심 = 그림자 끝</text>
+      </g>
+
+      <line className="true-ray" x1={shadowTipX} y1={groundY} x2={baseX} y2={groundY - poleHeight} />
+      <line
+        className="guess-ray"
+        x1={shadowTipX}
+        y1={groundY}
+        x2={shadowTipX + Math.cos(guessRadians) * (radius + 14)}
+        y2={groundY - Math.sin(guessRadians) * (radius + 14)}
+      />
+
+      <line className="instrument-shadow" x1={baseX} y1={groundY - 2} x2={shadowTipX} y2={groundY - 2} />
+      <circle className="shadow-tip" cx={shadowTipX} cy={groundY - 2} r="5" />
+
+      <g className="instrument-ruler">
+        <rect x={baseX - 16 * unit} y={groundY + 3} width={16 * unit} height="37" rx="2" />
+        {rulerTicks.map((value) => {
+          const x = baseX - value * unit;
+          const whole = Number.isInteger(value);
+          const half = Math.round(value * 10) % 5 === 0;
+          return <line key={value} x1={x} y1={groundY + 3} x2={x} y2={groundY + (whole ? 19 : half ? 14 : 10)} />;
+        })}
+        {[0, 5, 10, 15].map((value) => <text key={value} x={baseX - value * unit} y={groundY + 34}>{value}</text>)}
+        <text className="ruler-unit" x={baseX - 16 * unit + 7} y={groundY + 34}>cm</text>
+      </g>
+
+      <g className="instrument-stick">
+        <rect x={baseX - 7} y={groundY - poleHeight} width="14" height={poleHeight} rx="5" />
+        <line x1={baseX} y1={groundY - poleHeight + 10} x2={baseX} y2={groundY - 10} />
+        <text x={baseX + 15} y={groundY - poleHeight / 2}>10 cm 막대기</text>
+      </g>
+      <path className="zero-marker" d={`M ${baseX - 8} ${groundY + 48} L ${baseX} ${groundY + 41} L ${baseX + 8} ${groundY + 48}`} />
+      <text className="zero-label" x={baseX} y={groundY + 62}>자의 0점 = 막대기 밑</text>
+      <g className="instrument-legend" transform="translate(72 72)">
+        <line className="true-ray" x1="0" y1="0" x2="28" y2="0" /><text x="36" y="4">막대기 끝 연결선</text>
+        <line className="guess-ray" x1="0" y1="22" x2="28" y2="22" /><text x="36" y="26">내 각도 눈금</text>
+      </g>
+    </svg>
+  );
+}
+
 export default function Home() {
   const [phase, setPhase] = useState(0);
   const [sampleIndex, setSampleIndex] = useState(0);
-  const [recorded, setRecorded] = useState<number[]>([]);
+  const [measurements, setMeasurements] = useState<MeasurementMap>({});
   const [angleGuess, setAngleGuess] = useState(30);
   const [shadowGuess, setShadowGuess] = useState('');
   const [feedback, setFeedback] = useState('각도기와 자를 자세히 살펴보고 측정값을 입력하세요.');
@@ -94,6 +174,7 @@ export default function Home() {
   const [teacherOpen, setTeacherOpen] = useState(false);
   const [isDraggingTime, setIsDraggingTime] = useState(false);
   const sample = samples[sampleIndex];
+  const recorded = Object.keys(measurements).map(Number).sort((a, b) => a - b);
   const progress = Math.round(((setup.filter(Boolean).length + recorded.length + solved.length) / 13) * 100);
   const badge = recorded.length === 7 ? '남중고도 마스터' : recorded.length >= 4 ? '그림자 탐정' : recorded.length >= 1 ? '첫 관측 성공' : '도전 중';
 
@@ -156,9 +237,13 @@ export default function Home() {
       setFeedback('그림자 길이도 입력해야 관측을 완료할 수 있어요.'); setFeedbackTone('try'); return;
     }
     if (angleDiff <= 1 && shadowDiff <= .6) {
-      const first = !recorded.includes(sampleIndex);
-      if (first) { setRecorded((items) => [...items, sampleIndex].sort((a, b) => a - b)); setScore((value) => value + 120); }
-      setFeedback(first ? `정확해요! ${sample.time} 관측 완료. 기온 ${sample.temperature}℃도 기록했어요. +120점` : '정확해요! 이미 기록된 관측값과 일치합니다.');
+      const first = !measurements[sampleIndex];
+      setMeasurements((items) => ({
+        ...items,
+        [sampleIndex]: { altitude: angleGuess, shadow: shadowNumber, temperature: sample.temperature },
+      }));
+      if (first) setScore((value) => value + 120);
+      setFeedback(first ? `정확해요! 입력한 ${angleGuess}°, ${shadowNumber} cm와 기온 ${sample.temperature}℃가 기록표와 그래프로 전송됐어요. +120점` : `재측정값 ${angleGuess}°, ${shadowNumber} cm로 기록을 갱신했어요.`);
       setFeedbackTone('good');
     } else {
       const hint = angleDiff > 1 && shadowDiff > .6 ? '각도기의 중심과 그림자 끝을 모두 다시 확인해 보세요.' : angleDiff > 1 ? '막대기 끝과 각도기 중심을 이은 선을 다시 살펴보세요.' : '자의 0 cm가 막대기 밑에 놓였는지 확인해 보세요.';
@@ -253,12 +338,7 @@ export default function Home() {
                 <div className="drag-hint"><span>↔</span>{isDraggingTime ? '시간 이동 중' : '태양을 좌우로 드래그해 시간 바꾸기'}</div>
                 <div className={`sun ${isDraggingTime ? 'grabbed' : ''}`} style={{ left: `${12 + sampleIndex * 12.5}%`, top: `${62 - sample.altitude * .78}%` }}><span /><i aria-hidden="true">↔</i></div>
                 <div className="sun-path" aria-hidden="true" />
-                <div className="ground">
-                  <div className="stick" />
-                  <div className="shadow" style={{ width: `${sample.shadow * 8}px`, transform: `rotate(${sampleIndex < 3 ? 184 : 356}deg)` }} />
-                  <div className="protractor"><div className="angle-ray" style={{ transform: `rotate(${-sample.altitude}deg)` }} /><span>각도기</span></div>
-                  <div className="ruler" style={{ width: `${Math.max(160, sample.shadow * 9)}px` }}>{Array.from({ length: 16 }).map((_, i) => <i key={i} style={{ left: `${i * 9}px` }}>{i % 5 === 0 ? i : ''}</i>)}</div>
-                </div>
+                <MeasurementInstrument sample={sample} angleGuess={angleGuess} />
               </div>
               <aside className="measure-panel">
                 <span className="mini-label">관측 퀘스트 {sampleIndex + 1}/7</span><strong>{sample.time}</strong>
@@ -279,8 +359,8 @@ export default function Home() {
           <section className="phase-panel graph-section">
             <div className="section-heading"><div><span className="section-number">03</span><p>관측값이 선으로 이어져요</p></div><h2>관측 기록과 꺾은선그래프</h2></div>
             {recorded.length < 3 && <div className="unlock-note">🔒 모의 측정에서 3개 이상의 시각을 관측하면 그래프가 열려요.</div>}
-            <div className="graph-grid"><GraphCard metric="altitude" recorded={recorded} /><GraphCard metric="shadow" recorded={recorded} /><GraphCard metric="temperature" recorded={recorded} /></div>
-            <div className="data-table-wrap"><table><caption>하루 동안의 관측 기록</caption><thead><tr><th>측정 시각</th>{samples.map((item) => <th key={item.time}>{item.time}</th>)}</tr></thead><tbody><tr><th>태양 고도(°)</th>{samples.map((item, i) => <td key={item.time}>{recorded.includes(i) ? item.altitude : '—'}</td>)}</tr><tr><th>그림자 길이(cm)</th>{samples.map((item, i) => <td key={item.time}>{recorded.includes(i) ? item.shadow : '—'}</td>)}</tr><tr><th>기온(℃)</th>{samples.map((item, i) => <td key={item.time}>{recorded.includes(i) ? item.temperature.toFixed(1) : '—'}</td>)}</tr></tbody></table></div>
+            <div className="graph-grid"><GraphCard metric="altitude" measurements={measurements} /><GraphCard metric="shadow" measurements={measurements} /><GraphCard metric="temperature" measurements={measurements} /></div>
+            <div className="data-table-wrap"><table><caption>하루 동안의 관측 기록 · 모의 측정에서 제출한 값</caption><thead><tr><th>측정 시각</th>{samples.map((item) => <th key={item.time}>{item.time}</th>)}</tr></thead><tbody><tr><th>태양 고도(°)</th>{samples.map((item, i) => <td key={item.time}>{measurements[i]?.altitude ?? '—'}</td>)}</tr><tr><th>그림자 길이(cm)</th>{samples.map((item, i) => <td key={item.time}>{measurements[i]?.shadow ?? '—'}</td>)}</tr><tr><th>기온(℃)</th>{samples.map((item, i) => <td key={item.time}>{measurements[i]?.temperature.toFixed(1) ?? '—'}</td>)}</tr></tbody></table></div>
             <div className="pattern-callout"><span>탐정의 단서</span><p>그래프의 <b>가장 높은 점</b>과 그림자 그래프의 <b>가장 낮은 점</b>이 같은 시각인지 살펴보세요.</p><button type="button" onClick={() => setPhase(3)}>관계 추리하기 →</button></div>
           </section>
         )}

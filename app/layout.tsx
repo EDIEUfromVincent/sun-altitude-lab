@@ -2,9 +2,10 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://sun-altitude-lab.ohjinwoo9696.chatgpt.site'),
+  metadataBase: new URL('https://sun-altitude-lab-production.up.railway.app'),
   title: '해봄 과학실 | 태양의 남중고도 탐구',
   description: '6학년 과학: 하루 동안 태양 고도, 그림자 길이, 기온의 관계를 탐구하는 수업용 웹앱',
+  icons: { icon: '/favicon.svg' },
   openGraph: {
     title: '태양의 남중고도 탐구',
     description: '사라진 태양의 최고점을 찾아라! 6학년 과학 게임형 탐구 수업',
