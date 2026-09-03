@@ -169,7 +169,9 @@ export default function Home() {
   const [angleGuess, setAngleGuess] = useState(30);
   const [shadowGuess, setShadowGuess] = useState('');
   const [feedback, setFeedback] = useState('각도기와 자를 자세히 살펴보고 측정값을 입력하세요.');
-  const [feedbackTone, setFeedbackTone] = useState<'neutral' | 'good' | 'try'>('neutral');
+  const [feedbackTone, setFeedbackTone] = useState<'neutral' | 'good' | 'try' | 'answer'>('neutral');
+  const [wrongAttempts, setWrongAttempts] = useState<Record<number, number>>({});
+  const [revealed, setRevealed] = useState<number[]>([]);
   const [score, setScore] = useState(0);
   const [setup, setSetup] = useState([false, false, false]);
   const [solved, setSolved] = useState<string[]>([]);
@@ -177,15 +179,30 @@ export default function Home() {
   const [isDraggingTime, setIsDraggingTime] = useState(false);
   const sample = samples[sampleIndex];
   const recorded = Object.keys(measurements).map(Number).sort((a, b) => a - b);
+  const currentAttempts = wrongAttempts[sampleIndex] ?? 0;
   const progress = Math.round(((setup.filter(Boolean).length + recorded.length + solved.length) / 13) * 100);
   const badge = recorded.length === 7 ? '남중고도 마스터' : recorded.length >= 4 ? '그림자 탐정' : recorded.length >= 1 ? '첫 관측 성공' : '도전 중';
 
   function chooseSample(index: number) {
+    const existing = measurements[index];
     setSampleIndex(index);
-    setAngleGuess(30);
-    setShadowGuess('');
-    setFeedback(recorded.includes(index) ? '이미 관측한 시각이에요. 다시 실험해 보아도 좋아요!' : '각도기와 자를 자세히 살펴보고 측정값을 입력하세요.');
-    setFeedbackTone('neutral');
+    setAngleGuess(existing?.altitude ?? 30);
+    setShadowGuess(existing ? String(existing.shadow) : '');
+    if (revealed.includes(index)) {
+      setFeedback(`정답 확인 완료: 태양 고도 ${samples[index].altitude}°, 그림자 길이 ${samples[index].shadow} cm입니다.`);
+      setFeedbackTone('answer');
+    } else {
+      setFeedback(existing ? '이미 관측한 시각이에요. 다시 실험해 보아도 좋아요!' : '각도기와 자를 자세히 살펴보고 측정값을 입력하세요.');
+      setFeedbackTone('neutral');
+    }
+  }
+
+  function goToNextObservation() {
+    const nextAfter = samples.findIndex((_, index) => index > sampleIndex && !measurements[index]);
+    const nextFromStart = samples.findIndex((_, index) => !measurements[index]);
+    const nextIndex = nextAfter >= 0 ? nextAfter : nextFromStart;
+    if (nextIndex >= 0) chooseSample(nextIndex);
+    else setPhase(2);
   }
 
   function chooseTimeFromPosition(clientX: number, surface: HTMLDivElement) {
@@ -246,11 +263,27 @@ export default function Home() {
         [sampleIndex]: { altitude: angleGuess, shadow: shadowNumber, temperature: sample.temperature },
       }));
       if (first) setScore((value) => value + 120);
+      setWrongAttempts((items) => ({ ...items, [sampleIndex]: 0 }));
       setFeedback(first ? `${resultLabel} 입력한 ${angleGuess}°, ${shadowNumber} cm와 기온 ${sample.temperature}℃가 기록표와 그래프로 전송됐어요. +120점` : `${resultLabel} 재측정값 ${angleGuess}°, ${shadowNumber} cm로 기록을 갱신했어요.`);
       setFeedbackTone('good');
     } else {
-      const hint = angleDiff > 1 && shadowDiff > .6 ? '각도기의 중심과 그림자 끝을 모두 다시 확인해 보세요.' : angleDiff > 1 ? '막대기 끝과 각도기 중심을 이은 선을 다시 살펴보세요.' : '자의 0 cm가 막대기 밑에 놓였는지 확인해 보세요.';
-      setFeedback(`아직 괜찮아요. ${hint} 실패해도 점수는 줄지 않아요!`); setFeedbackTone('try');
+      const nextAttempts = currentAttempts + 1;
+      setWrongAttempts((items) => ({ ...items, [sampleIndex]: nextAttempts }));
+      if (nextAttempts >= 3) {
+        setMeasurements((items) => ({
+          ...items,
+          [sampleIndex]: { altitude: sample.altitude, shadow: sample.shadow, temperature: sample.temperature },
+        }));
+        setRevealed((items) => items.includes(sampleIndex) ? items : [...items, sampleIndex]);
+        setAngleGuess(sample.altitude);
+        setShadowGuess(String(sample.shadow));
+        setFeedback(`3번 시도했어요. 정답은 태양 고도 ${sample.altitude}°, 그림자 길이 ${sample.shadow} cm예요. 정답을 기록했으니 다음 시각으로 넘어가세요.`);
+        setFeedbackTone('answer');
+      } else {
+        const hint = angleDiff > measurementTolerance.altitude && shadowDiff > measurementTolerance.shadow ? '각도기의 중심과 그림자 끝을 모두 다시 확인해 보세요.' : angleDiff > measurementTolerance.altitude ? '막대기 끝과 각도기 중심을 이은 선을 다시 살펴보세요.' : '자의 0 cm가 막대기 밑에 놓였는지 확인해 보세요.';
+        setFeedback(`${nextAttempts}/3회 시도했어요. ${hint} 실패해도 점수는 줄지 않아요!`);
+        setFeedbackTone('try');
+      }
     }
   }
 
@@ -351,8 +384,10 @@ export default function Home() {
                 <p className="tolerance-note">눈금 읽기 오차 허용: 각도 ±2° · 그림자 ±1.5 cm</p>
                 <label htmlFor="shadow-input">② 그림자 길이 읽기</label>
                 <div className="input-unit"><input id="shadow-input" inputMode="decimal" value={shadowGuess} onChange={(event) => setShadowGuess(event.target.value)} placeholder="예: 12.5" /><span>cm</span></div>
-                <div className={`feedback ${feedbackTone}`} role="status"><span>{feedbackTone === 'good' ? '✓' : feedbackTone === 'try' ? '↻' : 'i'}</span><p>{feedback}</p></div>
-                <button className="record-button" type="button" onClick={checkMeasurement}>측정값 확인하기 <span>+120 P</span></button>
+                <div className={`feedback ${feedbackTone}`} role="status"><span>{feedbackTone === 'good' ? '✓' : feedbackTone === 'try' ? '↻' : feedbackTone === 'answer' ? '!' : 'i'}</span><p>{feedback}</p></div>
+                {revealed.includes(sampleIndex)
+                  ? <button className="record-button reveal-next-button" type="button" onClick={goToNextObservation}>정답 확인 완료 · 다음 시각 <span>→</span></button>
+                  : <button className="record-button" type="button" onClick={checkMeasurement}>측정값 확인하기 <span>{currentAttempts}/3 시도</span></button>}
               </aside>
             </div>
             <div className="mission-foot"><span>{recorded.length}/7 관측 완료</span><button type="button" disabled={recorded.length < 3} onClick={() => setPhase(2)}>그래프 확인하기 →</button></div>

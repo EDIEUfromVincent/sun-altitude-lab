@@ -125,8 +125,11 @@ input[type=range] { width:100%; accent-color:var(--green); cursor:pointer; }
 .feedback>span { width:19px; height:19px; flex:0 0 auto; display:grid; place-items:center; border-radius:50%; background:#78857d; color:#fff; font-weight:900; }
 .feedback p { margin:1px 0 0; }
 .feedback.good { background:#e2f4e8; color:#226343; }.feedback.good>span{background:#2a9561}.feedback.try{background:#fff0dc;color:#895513}.feedback.try>span{background:#df8a20}
+.feedback.answer { background:#fff3c8; color:#6f5210; border:1px solid #e7c45c; }.feedback.answer>span{background:#d99a13}
 .record-button { margin-top:auto; border:0; border-radius:8px; background:var(--green); color:#fff; padding:15px 16px; display:flex; justify-content:space-between; font-weight:900; font-size:13px; }
 .record-button span { color:#a8d9c1; font-size:11px; }
+.reveal-next-button { background:#9b6a08; }
+.reveal-next-button:hover { background:#7b5103; }
 .mission-foot { display:flex; justify-content:flex-end; align-items:center; gap:20px; padding-top:16px; color:#627067; font-size:12px; }
 .mission-foot button { border:0; color:#fff; background:var(--green); border-radius:7px; padding:11px 15px; font-weight:900; }
 .unlock-note { padding:13px 17px; background:#fff6dd; color:#785c13; border:1px solid #ead798; border-radius:8px; margin-bottom:15px; font-size:13px; }
