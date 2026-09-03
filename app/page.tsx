@@ -220,7 +220,7 @@ export default function Home() {
   const sample = samples[sampleIndex];
   const recorded = Object.keys(measurements).map(Number).sort((a, b) => a - b);
   const currentAttempts = wrongAttempts[sampleIndex] ?? 0;
-  const progress = Math.round(((setup.filter(Boolean).length + recorded.length + solved.length) / 13) * 100);
+  const progress = Math.round(((setup.filter(Boolean).length + recorded.length + solved.length) / 14) * 100);
   const badge = recorded.length === 7 ? '남중고도 마스터' : recorded.length >= 4 ? '그림자 탐정' : recorded.length >= 1 ? '첫 관측 성공' : '도전 중';
 
   function chooseSample(index: number) {
@@ -364,7 +364,7 @@ export default function Home() {
         <div className="hero-copy">
           <div className="eyebrow"><span>오늘의 탐구 임무</span><i /> 남쪽 하늘 관측소</div>
           <h1>사라진 태양의<br /><em>최고점을 찾아라!</em></h1>
-          <p>관측소의 하루 기록이 사라졌어요. 태양 고도와 그림자 길이를 측정해<br className="desktop-break" /> 태양이 가장 높이 뜬 순간을 찾아주세요.</p>
+          <p>관측소의 하루 기록이 사라졌어요. 태양 고도·그림자 길이·기온을 비교해<br className="desktop-break" /> 태양이 가장 높이 뜬 순간과 가장 더운 순간을 찾아주세요.</p>
           <button className="start-button" type="button" onClick={() => { setPhase(1); document.querySelector('#mission')?.scrollIntoView({ behavior: 'smooth' }); }}>관측 임무 시작 <span>→</span></button>
         </div>
         <div className="mission-card">
@@ -486,20 +486,26 @@ export default function Home() {
             </section>
             <div className="graph-grid"><GraphCard metric="altitude" measurements={measurements} /><GraphCard metric="shadow" measurements={measurements} /><GraphCard metric="temperature" measurements={measurements} /></div>
             <div className="data-table-wrap"><table><caption>하루 동안의 관측 기록 · {observation.date} {observation.school} · 모의 측정에서 제출한 값</caption><thead><tr><th>측정 시각</th>{samples.map((item) => <th key={item.time}>{item.time}</th>)}</tr></thead><tbody><tr><th>태양 고도(°)</th>{samples.map((item, i) => <td key={item.time}>{measurements[i]?.altitude ?? '—'}</td>)}</tr><tr><th>그림자 길이(cm)</th>{samples.map((item, i) => <td key={item.time}>{measurements[i]?.shadow ?? '—'}</td>)}</tr><tr><th>기온(℃)</th>{samples.map((item, i) => <td key={item.time}>{measurements[i]?.temperature.toFixed(1) ?? '—'}</td>)}</tr></tbody></table></div>
-            <div className="pattern-callout"><span>탐정의 단서</span><p>그래프의 <b>가장 높은 점</b>과 그림자 그래프의 <b>가장 낮은 점</b>이 같은 시각인지 살펴보세요.</p><button type="button" onClick={() => setPhase(3)}>관계 추리하기 →</button></div>
+            <div className="thermal-lag-card">
+              <div><span>태양 고도 최고 · 그림자 최단</span><b>12:30</b><small>59.7° · 5.8 cm</small></div>
+              <div className="thermal-arrow"><b>약 2시간 뒤</b><span>지표가 계속 데워져요 →</span></div>
+              <div><span>기온 최고</span><b>14:30</b><small>29.6℃</small></div>
+            </div>
+            <div className="pattern-callout"><span>탐정의 단서</span><div className="pattern-clues"><p>태양 고도의 <b>가장 높은 점</b>과 그림자 길이의 <b>가장 낮은 점</b>은 12:30으로 같아요.</p><p>하지만 기온의 <b>가장 높은 점</b>은 14:30이에요. 왜 약 2시간 늦게 나타나는지 생각해 보세요.</p></div><button type="button" onClick={() => setPhase(3)}>관계 추리하기 →</button></div>
           </section>
         )}
 
         {phase === 3 && (
           <section className="phase-panel relation-section">
-            <div className="section-heading"><div><span className="section-number">04</span><p>증거로 규칙 설명하기</p></div><h2>세 가지 개념 도전</h2></div>
+            <div className="section-heading"><div><span className="section-number">04</span><p>증거로 규칙 설명하기</p></div><h2>네 가지 개념 도전</h2></div>
             <p className="lead">틀려도 점수는 줄지 않습니다. 그래프로 돌아가 근거를 다시 찾고 도전하세요.</p>
             <div className="quiz-list">
               <article className={solved.includes('peak') ? 'quiz solved' : 'quiz'}><div className="quiz-num">1</div><div><span>최고점 찾기 · 100 P</span><h3>태양 고도가 가장 높은 시각은 언제인가요?</h3><div className="answers">{['11:30', '12:30', '13:30'].map((item) => <button key={item} type="button" onClick={() => answer('peak', item === '12:30')}>{item}</button>)}</div>{solved.includes('peak') && <p className="answer-feedback">✓ 맞아요. 오후 12시 30분의 태양 고도는 59.7°로 가장 높습니다. 한국천문연구원 자료의 인천 남중 시각은 {observation.transit}, 남중고도는 {observation.meridianAltitude}입니다.</p>}</div></article>
               <article className={solved.includes('shadow') ? 'quiz solved' : 'quiz'}><div className="quiz-num">2</div><div><span>관계 찾기 · 100 P</span><h3>태양 고도가 높아질수록 그림자 길이는 어떻게 되나요?</h3><div className="answers"><button type="button" onClick={() => answer('shadow', true)}>짧아진다</button><button type="button" onClick={() => answer('shadow', false)}>길어진다</button><button type="button" onClick={() => answer('shadow', false)}>변하지 않는다</button></div>{solved.includes('shadow') && <p className="answer-feedback">✓ 정확해요. 태양 고도와 그림자 길이는 반대 방향으로 변합니다.</p>}</div></article>
               <article className={solved.includes('south') ? 'quiz solved' : 'quiz'}><div className="quiz-num">3</div><div><span>과학 용어 · 100 P</span><h3>태양이 정남쪽에 있을 때의 태양 고도를 무엇이라고 하나요?</h3><div className="answers"><button type="button" onClick={() => answer('south', false)}>최고 고도</button><button type="button" onClick={() => answer('south', true)}>태양의 남중 고도</button><button type="button" onClick={() => answer('south', false)}>계절 고도</button></div>{solved.includes('south') && <p className="answer-feedback">✓ 태양이 남중할 때의 고도를 ‘태양의 남중 고도’라고 합니다.</p>}</div></article>
+              <article className={solved.includes('temperature') ? 'quiz solved' : 'quiz'}><div className="quiz-num">4</div><div><span>기온의 시간 지연 · 100 P</span><h3>태양 고도가 12:30에 가장 높은데, 기온은 언제 가장 높나요?</h3><div className="answers">{['12:30', '13:30', '14:30'].map((item) => <button key={item} type="button" onClick={() => answer('temperature', item === '14:30')}>{item}</button>)}</div>{solved.includes('temperature') && <p className="answer-feedback">✓ 14:30에 29.6℃로 가장 높아요. 정오 이후에도 지표가 한동안 태양 에너지를 받아 데워지므로 최고 기온은 남중 시각보다 늦게 나타납니다.</p>}</div></article>
             </div>
-            <button className="next-button" type="button" disabled={solved.length < 3} onClick={() => setPhase(4)}>최종 보고서 열기 <span>→</span></button>
+            <button className="next-button" type="button" disabled={solved.length < 4} onClick={() => setPhase(4)}>최종 보고서 열기 <span>→</span></button>
           </section>
         )}
 
@@ -529,7 +535,7 @@ export default function Home() {
               <div className="paper-fold paper-fold-right" aria-hidden="true" />
               <div className="completion-seal">☀<span>MISSION<br />COMPLETE</span></div>
               <span className="final-kicker">남쪽 하늘 관측소 공식 보고서</span><h2>남중고도의 비밀을 찾았어요!</h2>
-              <p>{observation.date} {observation.school}에서 태양은 <b>오후 12시 30분 무렵</b>(남중 {observation.transit}) 정남쪽에서 <b>{observation.meridianAltitude}</b>로 가장 높이 떠요.<br />태양 고도가 높아질수록 그림자는 <b>짧아지고</b>, 기온은 대체로 <b>높아집니다.</b></p>
+              <p>{observation.date} {observation.school}에서 태양은 <b>오후 12시 30분 무렵</b>(남중 {observation.transit}) 정남쪽에서 <b>{observation.meridianAltitude}</b>로 가장 높이 떠요.<br />이때 그림자는 <b>가장 짧지만</b>, 기온은 바로 최고가 되지 않아요. 지표가 한동안 더 데워진 뒤 <b>오후 2시 30분에 29.6℃</b>로 가장 높아집니다.</p>
               <div className="result-grid"><div><span>최종 점수</span><b>{score} P</b></div><div><span>완료 관측</span><b>{recorded.length} / 7</b></div><div><span>획득 배지</span><b>{badge}</b></div></div>
               <div className="final-actions"><button type="button" onClick={() => window.print()}>결과 인쇄하기</button><button type="button" className="outline" onClick={() => { setPhase(1); document.querySelector('#mission')?.scrollIntoView({ behavior: 'smooth' }); }}>관측 다시 보기</button></div>
             </article>
@@ -539,7 +545,7 @@ export default function Home() {
 
       <footer><b>해봄 과학실</b><span>관찰하고 · 측정하고 · 설명하는 과학</span><small>학습 주제: 하루 동안 태양 고도, 그림자 길이, 기온의 관계 · 관측 기준 {observation.school}({observation.address}) {observation.date} · 태양 자료 {observation.source}</small></footer>
 
-      {teacherOpen && <div className="modal-backdrop" role="presentation" onMouseDown={() => setTeacherOpen(false)}><section className="teacher-modal" role="dialog" aria-modal="true" aria-labelledby="teacher-title" onMouseDown={(event) => event.stopPropagation()}><button className="modal-close" type="button" aria-label="닫기" onClick={() => setTeacherOpen(false)}>×</button><span>교수·학습과정안 연계</span><h2 id="teacher-title">80분 수업 운영 가이드</h2><ol><li><b>도입 5분</b><p>오전·오후 그림자의 차이를 자유롭게 발표하고 학습 문제를 확인합니다.</p></li><li><b>활동 1 · 35분</b><p>평평한 곳, 자와 그림자의 평행, 각도기 중심 정렬을 확인한 뒤 시간대별로 측정합니다.</p></li><li><b>활동 2 · 10분</b><p>태양 고도·그림자 길이·기온의 변화를 그래프로 읽습니다.</p></li><li><b>활동 3 · 25분</b><p>그래프의 최고·최저점을 비교해 관계와 남중 고도를 설명합니다.</p></li><li><b>정리 5분</b><p>“그림자를 밟기 가장 어려운 시각”과 남중 고도를 말로 정리합니다.</p></li></ol><div className="teacher-tip"><b>관찰 평가</b><p>모든 측정값의 정확성뿐 아니라 비교·관계 설명을 함께 확인하세요. 관측 시각은 학교 상황에 맞게 조절할 수 있습니다.</p></div><div className="teacher-tip"><b>자료 출처</b><p>{observation.date} {observation.area} 기준 일출 {observation.sunrise}, 남중 {observation.transit}, 일몰 {observation.sunset}, 남중고도 {observation.meridianAltitude}는 {observation.source} 응답값입니다. 관측 시각별 고도는 이 값을 기준점으로 같은 날 태양 위치를 계산했고, 기온은 예시값입니다.</p></div></section></div>}
+      {teacherOpen && <div className="modal-backdrop" role="presentation" onMouseDown={() => setTeacherOpen(false)}><section className="teacher-modal" role="dialog" aria-modal="true" aria-labelledby="teacher-title" onMouseDown={(event) => event.stopPropagation()}><button className="modal-close" type="button" aria-label="닫기" onClick={() => setTeacherOpen(false)}>×</button><span>교수·학습과정안 연계</span><h2 id="teacher-title">80분 수업 운영 가이드</h2><ol><li><b>도입 5분</b><p>오전·오후 그림자의 차이를 자유롭게 발표하고 학습 문제를 확인합니다.</p></li><li><b>활동 1 · 35분</b><p>평평한 곳, 자와 그림자의 평행, 각도기 중심 정렬을 확인한 뒤 시간대별로 측정합니다.</p></li><li><b>활동 2 · 10분</b><p>태양 고도·그림자 길이·기온 그래프의 최고·최저 시각을 각각 찾습니다.</p></li><li><b>활동 3 · 25분</b><p>남중 시각과 최고 기온 시각을 비교하고, 지표가 데워지는 데 시간이 걸려 최고 기온이 늦게 나타남을 설명합니다.</p></li><li><b>정리 5분</b><p>“그림자가 가장 짧은 시각”과 “기온이 가장 높은 시각”이 다른 까닭을 말로 정리합니다.</p></li></ol><div className="teacher-tip"><b>관찰 평가</b><p>태양 고도와 그림자의 반대 관계뿐 아니라, 남중 이후 최고 기온이 늦게 나타나는 시간 지연까지 설명하는지 확인하세요.</p></div><div className="teacher-tip"><b>자료 출처</b><p>{observation.date} {observation.area} 기준 일출 {observation.sunrise}, 남중 {observation.transit}, 일몰 {observation.sunset}, 남중고도 {observation.meridianAltitude}는 {observation.source} 응답값입니다. 관측 시각별 고도는 이 값을 기준점으로 같은 날 태양 위치를 계산했고, 기온은 예시값입니다.</p></div></section></div>}
     </main>
   );
 }
