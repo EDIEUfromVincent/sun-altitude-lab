@@ -1,3 +1,4 @@
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css');
 @import 'tailwindcss';
 
 :root { --ink:#17231e; --green:#185f45; --green2:#2b8b61; --mint:#e7f2e9; --sun:#f8b92a; --paper:#f5f3ed; --line:#d6d9d3; --orange:#e45b36; }
@@ -206,3 +207,167 @@ footer { min-height:120px; padding:38px clamp(24px,7vw,110px); background:#183f3
 @media (max-width:560px) { .teacher-button{display:none}.topbar{height:64px}.score-chip{font-size:11px}.hero{padding-inline:22px;min-height:auto}.hero h1{font-size:45px}.hero p{font-size:15px}.desktop-break{display:none}.mission-card{padding:25px}.mission-shell{padding-inline:14px}.mission-status{grid-template-columns:1fr;padding:17px}.mission-status>div:first-child{display:none}.steps{padding:0 14px}.step{min-width:112px}.phase-panel{padding-top:45px}.section-heading h2{font-size:28px}.time-quests{margin-inline:-2px}.lab-card{border-radius:0 0 12px 12px}.sky-panel{min-height:390px}.measure-panel{padding:28px 22px}.official-solar-card{padding:17px}.official-solar-controls{grid-template-columns:1fr 1fr}.official-solar-controls button{grid-column:1/-1}.official-solar-values{grid-template-columns:repeat(2,1fr)}.official-solar-values div{border-bottom:1px solid #e0e6e2}.official-solar-result small{float:none;display:block;margin-top:7px}.thermal-lag-card{grid-template-columns:1fr}.thermal-lag-card .thermal-arrow{min-height:80px;border-inline:0;border-block:1px dashed #dccb98}.quiz{grid-template-columns:1fr}.quiz-num{width:38px;height:38px}.pattern-callout{display:block}.pattern-callout p{margin:12px 0}.finish-section{padding:45px 18px}.finish-section h2{font-size:30px}.final-actions{display:grid}.teacher-modal{padding:28px 20px}.teacher-modal li{grid-template-columns:1fr;gap:4px}}
 @media (prefers-reduced-motion:reduce) { .paper-halo{animation:none}.finish-section{transition:none} }
 @media print { .topbar,.hero,.mission-status,.steps,.start-button,.final-actions,footer{display:none!important}.mission-shell{padding:0}.phase-panel{display:none}.finish-stage{display:block!important;background:#fff;min-height:0;margin:0}.finish-section{display:block!important;border:0;margin:0;width:100%;transform:none!important;box-shadow:none}.finish-section{page-break-inside:avoid} }
+
+/* 2026 kinetic science editorial refresh */
+:root {
+  --ink:#101b17;
+  --green:#004f3d;
+  --green2:#00a878;
+  --mint:#dff9ee;
+  --sun:#ffe03b;
+  --paper:#f3f1e9;
+  --line:#bfc7c1;
+  --orange:#ff5c35;
+  --blue:#2457f5;
+  --acid:#dfff43;
+  --display:'Pretendard Variable',Pretendard,'Apple SD Gothic Neo',sans-serif;
+}
+
+body {
+  font-family:var(--display);
+  background:
+    linear-gradient(rgba(16,27,23,.035) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(16,27,23,.035) 1px,transparent 1px),
+    var(--paper);
+  background-size:28px 28px;
+  letter-spacing:-.02em;
+}
+
+.topbar {
+  height:76px;
+  background:rgba(243,241,233,.88);
+  border-bottom:1.5px solid var(--ink);
+  backdrop-filter:blur(18px);
+}
+.brand { font-size:19px; font-weight:850; letter-spacing:-.045em; }
+.brand-mark {
+  width:39px; height:39px; border-radius:12px; background:var(--acid);
+  border:1.5px solid var(--ink); box-shadow:3px 3px 0 var(--ink); transform:rotate(-4deg);
+}
+.lesson-chip { color:var(--ink); border:1.5px solid var(--ink); background:#fff; font-weight:700; box-shadow:3px 3px 0 rgba(16,27,23,.14); }
+.score-chip { border:1.5px solid var(--ink); border-radius:999px; background:var(--sun); color:var(--ink); box-shadow:3px 3px 0 var(--ink); }
+.score-chip span { color:var(--ink); }
+.teacher-button,.start-button,.next-button,.record-button,.mission-foot button,.official-solar-controls button,.final-actions button {
+  border:1.5px solid var(--ink); border-radius:12px; background:var(--ink); box-shadow:4px 4px 0 var(--green2);
+  transition:transform .18s ease,box-shadow .18s ease,background .18s ease;
+}
+.teacher-button:hover,.start-button:hover,.next-button:hover,.record-button:hover,.mission-foot button:hover,.official-solar-controls button:hover,.final-actions button:hover {
+  background:var(--blue); transform:translate(-2px,-2px); box-shadow:6px 6px 0 var(--sun);
+}
+
+.hero {
+  min-height:610px; position:relative; isolation:isolate;
+  background:
+    radial-gradient(circle at 80% 22%,rgba(223,255,67,.95) 0 9%,transparent 9.2%),
+    radial-gradient(circle at 84% 28%,rgba(255,224,59,.8) 0 17%,transparent 17.2%),
+    linear-gradient(118deg,#f9f6eb 0 58%,#c9f1ff 58% 78%,#2457f5 78%);
+  border-bottom:1.5px solid var(--ink);
+}
+.hero:before {
+  content:'ALTITUDE / SHADOW / TEMPERATURE'; position:absolute; left:-22px; bottom:8px; z-index:-1;
+  color:rgba(16,27,23,.055); font-size:clamp(48px,8vw,128px); font-weight:950; letter-spacing:-.075em; white-space:nowrap;
+}
+.eyebrow { color:var(--ink); font-size:12px; letter-spacing:.13em; }
+.eyebrow span { background:var(--orange); border:1.5px solid var(--ink); border-radius:999px; box-shadow:3px 3px 0 var(--ink); }
+.eyebrow i { width:56px; height:2px; background:var(--ink); }
+.hero h1,.section-heading h2,.mission-card>b,.official-solar-intro h3,.finish-section h2,.teacher-modal h2 {
+  font-family:var(--display); font-weight:900; letter-spacing:-.065em;
+}
+.hero h1 { font-size:clamp(52px,6.3vw,96px); line-height:.96; text-wrap:balance; }
+.hero h1 em { color:var(--blue); text-decoration:underline; text-decoration-color:var(--sun); text-decoration-thickness:.14em; text-underline-offset:.08em; }
+.hero p { color:#394640; font-weight:530; max-width:720px; }
+.start-button { border-radius:999px; background:var(--blue); box-shadow:5px 5px 0 var(--ink); padding:17px 22px; }
+
+.mission-card {
+  border:1.5px solid #07120d; border-radius:28px 28px 8px 28px;
+  box-shadow:12px 12px 0 var(--orange),0 30px 70px rgba(16,27,23,.22);
+  transform:rotate(1.4deg);
+}
+.mission-card>span { color:var(--acid); }
+.mission-card>b { font-size:27px; }
+
+.mission-shell { max-width:1580px; }
+.mission-status { border:1.5px solid var(--ink); border-radius:18px 18px 0 0; box-shadow:6px 6px 0 rgba(16,27,23,.13); }
+.progress-bar { height:10px; background:#dce0dc; border:1px solid var(--ink); }
+.progress-bar i { background:linear-gradient(90deg,var(--green2),var(--acid)); }
+.points b { color:var(--blue); font-size:24px; font-weight:900; }
+.steps { border:1.5px solid var(--ink); border-top:0; border-radius:0 0 18px 18px; background:#eae9e1; }
+.step { font-weight:700; }
+.step>span { border:1.5px solid var(--ink); background:#fff; }
+.step.active>span { background:var(--acid); color:var(--ink); border-color:var(--ink); box-shadow:2px 2px 0 var(--ink); }
+
+.section-number { font-family:var(--display); color:var(--orange); font-size:38px; font-weight:900; font-style:normal; letter-spacing:-.08em; }
+.section-heading h2 { font-size:clamp(34px,3.3vw,51px); }
+.section-heading p { border:1px solid var(--ink); border-radius:999px; padding:7px 12px; background:#fff; color:var(--ink); font-weight:700; }
+.lead { font-size:16px; color:#4b5751; }
+.setup-grid { gap:22px; }
+.setup-card,.graph-card,.quiz {
+  border:1.5px solid var(--ink); border-radius:18px; box-shadow:6px 6px 0 rgba(16,27,23,.12);
+}
+.setup-card { min-height:260px; }
+.setup-card:hover { transform:translate(-3px,-3px); box-shadow:9px 9px 0 var(--sun); }
+.setup-card.checked { border:1.5px solid var(--ink); background:var(--mint); box-shadow:7px 7px 0 var(--green2); }
+.setup-icon { border:1.5px solid var(--ink); border-radius:14px; background:var(--acid); color:var(--ink); box-shadow:3px 3px 0 var(--ink); }
+
+.time-quests { gap:10px; }
+.time-quests button { border:1.5px solid var(--ink); border-radius:14px; font-weight:750; box-shadow:3px 3px 0 rgba(16,27,23,.12); }
+.time-quests button.selected { border-color:var(--ink); border-bottom:1.5px solid var(--ink); background:var(--acid); color:var(--ink); box-shadow:4px 4px 0 var(--ink); transform:translateY(-3px); }
+.lab-card { border:1.5px solid var(--ink); border-radius:22px; box-shadow:10px 10px 0 var(--blue); }
+.sky-panel { background:linear-gradient(180deg,#bdeeff 0%,#f6efcc 68%,#c6e59c 68%,#7ab663 100%); }
+.sky-caption,.drag-hint { border:1.5px solid var(--ink); background:rgba(255,255,255,.9); color:var(--ink); box-shadow:3px 3px 0 rgba(16,27,23,.22); }
+.drag-hint span { background:var(--blue); }
+.measure-panel { background:#fffdf7; border-left:1.5px solid var(--ink); }
+.measure-panel>strong { font-family:var(--display); font-weight:950; color:var(--blue); letter-spacing:-.06em; }
+.input-unit { border:1.5px solid var(--ink); border-radius:12px; box-shadow:3px 3px 0 rgba(16,27,23,.1); }
+.feedback,.tolerance-note,.data-source { border-radius:12px; }
+
+.official-solar-card { border:1.5px solid var(--ink); border-radius:20px; background:linear-gradient(135deg,#e1fff2,#fff7c9); box-shadow:7px 7px 0 var(--green2); }
+.official-solar-intro>span { border:1px solid var(--ink); border-radius:999px; background:var(--acid); color:var(--ink); }
+.official-solar-controls select,.official-solar-controls input { border:1.5px solid var(--ink); border-radius:10px; }
+.official-solar-values { border:1.5px solid var(--ink); border-radius:12px; }
+.graph-grid { gap:20px; }
+.graph-card { padding:19px 16px 10px; }
+.graph-card:nth-child(1) { box-shadow:6px 6px 0 #ffb49f; }
+.graph-card:nth-child(2) { box-shadow:6px 6px 0 #9de4ca; }
+.graph-card:nth-child(3) { box-shadow:6px 6px 0 #9eb8ff; }
+.graph-title { font-size:14px; }
+.graph-title>span { width:12px; height:12px; border:1px solid var(--ink); }
+.data-table-wrap { border:1.5px solid var(--ink); border-radius:16px; box-shadow:6px 6px 0 rgba(16,27,23,.12); }
+th { background:#e4e6df; }
+
+.thermal-lag-card { border:1.5px solid var(--ink); border-radius:20px; box-shadow:8px 8px 0 var(--sun); }
+.thermal-lag-card>div:first-child { background:#fff0e9; }
+.thermal-lag-card>div:last-child { background:#e9eeff; }
+.thermal-lag-card b { font-family:var(--display); color:var(--ink); font-weight:950; }
+.thermal-lag-card .thermal-arrow { background:var(--sun); border-color:var(--ink); }
+.thermal-lag-card .thermal-arrow b { color:var(--ink); }
+.pattern-callout { border:1.5px solid var(--ink); border-left:8px solid var(--orange); border-radius:16px; box-shadow:6px 6px 0 var(--sun); }
+.pattern-callout>span { border:1px solid var(--ink); background:var(--sun); border-radius:999px; }
+
+.quiz { padding:25px; }
+.quiz.solved { border:1.5px solid var(--ink); background:var(--mint); box-shadow:7px 7px 0 var(--green2); }
+.quiz-num { border:1.5px solid var(--ink); border-radius:14px; background:var(--acid); font-family:var(--display); font-weight:900; color:var(--ink); }
+.answers button { border:1.5px solid var(--ink); background:#fff; font-weight:700; box-shadow:2px 2px 0 rgba(16,27,23,.15); transition:.15s; }
+.answers button:hover { border-color:var(--ink); background:var(--sun); color:var(--ink); transform:translateY(-2px); box-shadow:3px 4px 0 var(--ink); }
+
+.finish-stage { border:1.5px solid var(--ink); border-radius:28px; background:radial-gradient(circle at 50% 30%,rgba(223,255,67,.2),transparent 32%),linear-gradient(145deg,#07110e,#082a20 55%,#153dff); box-shadow:12px 12px 0 var(--orange); }
+.completion-seal { background:var(--acid); color:var(--ink); box-shadow:0 0 0 10px #fff,0 0 0 12px var(--ink); }
+.final-actions .outline { border:1.5px solid var(--ink); color:var(--ink); box-shadow:4px 4px 0 var(--sun); }
+footer { background:var(--ink); border-top:7px solid var(--acid); }
+.teacher-modal { border:1.5px solid var(--ink); border-radius:22px; box-shadow:10px 10px 0 var(--blue),0 30px 80px rgba(0,0,0,.3); }
+
+@media (max-width:900px) {
+  .hero { background:radial-gradient(circle at 86% 18%,rgba(223,255,67,.85) 0 10%,transparent 10.4%),linear-gradient(145deg,#f9f6eb 0 72%,#bdeeff 72%); }
+  .mission-card { transform:none; }
+  .measure-panel { border-left:0; border-top:1.5px solid var(--ink); }
+}
+@media (max-width:560px) {
+  .topbar { border-bottom-width:1px; }
+  .brand { font-size:16px; }
+  .brand-mark { width:34px; height:34px; }
+  .hero h1 { font-size:48px; }
+  .hero:before { display:none; }
+  .mission-card { border-radius:22px; box-shadow:7px 7px 0 var(--orange); }
+  .section-heading p { display:inline-block; margin-top:12px; }
+  .lab-card { box-shadow:6px 6px 0 var(--blue); }
+}

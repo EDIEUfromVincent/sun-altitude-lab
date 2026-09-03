@@ -53,9 +53,9 @@ const samples: Sample[] = [
 ];
 
 const graphMeta: Record<GraphKey, { label: string; unit: string; color: string; min: number; max: number }> = {
-  altitude: { label: '태양 고도', unit: '°', color: '#e45b36', min: 30, max: 65 },
-  shadow: { label: '그림자 길이', unit: 'cm', color: '#2b8b61', min: 4, max: 14 },
-  temperature: { label: '기온', unit: '℃', color: '#3568ad', min: 22, max: 31 },
+  altitude: { label: '태양 고도', unit: '°', color: '#ff5c35', min: 30, max: 65 },
+  shadow: { label: '그림자 길이', unit: 'cm', color: '#00a878', min: 4, max: 14 },
+  temperature: { label: '기온', unit: '℃', color: '#2457f5', min: 22, max: 31 },
 };
 
 const measurementTolerance = { altitude: 2, shadow: 1.5 };
@@ -89,7 +89,7 @@ function GraphCard({ metric, measurements }: { metric: GraphKey; measurements: M
     samples.forEach((sample, i) => {
       const x = pad.l + (plotW / 6) * i;
       ctx.beginPath(); ctx.moveTo(x, pad.t); ctx.lineTo(x, pad.t + plotH); ctx.stroke();
-      ctx.fillStyle = '#66736a'; ctx.font = '10px Arial'; ctx.textAlign = 'center';
+      ctx.fillStyle = '#53605a'; ctx.font = '700 10px Pretendard, sans-serif'; ctx.textAlign = 'center';
       ctx.fillText(sample.time, x, height - 10);
     });
     const points = samples.map((sample, i) => ({
